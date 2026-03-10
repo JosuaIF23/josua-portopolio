@@ -7,7 +7,7 @@ export const portfolioData = [
       'A modern monolithic platform built with Laravel + React/Vue.js via Inertia.js to digitalize complex academic research workflows at IT Del, featuring a multi-role RBAC system and automated document generation.',
     techStack: ['Laravel', 'React', 'Vue.js', 'Inertia.js', 'Tailwind CSS', 'PostgreSQL'],
     imageUrl: '/images/projects/lppm.png',
-    liveLink: '#',
+    liveLink: 'https://itdel-lppm.delpick.fun:8080/auth/login',
     repoLink: 'https://github.com/JosuaIF23/itdel-lppm-app-main',
   },
   {
@@ -18,7 +18,7 @@ export const portfolioData = [
       'A task management web app engineered with Laravel and Vue.js/React, featuring secure authentication, interactive calendars, To-Do lists, and a built-in timer — backed by a PostgreSQL database and tested via Postman.',
     techStack: ['Laravel', 'Vue.js', 'React', 'PostgreSQL', 'Postman'],
     imageUrl: '/images/projects/chronodesk.png',
-    liveLink: '#',
+    liveLink: 'https://chronodesk.josua.fun:8080/',
     repoLink: 'https://github.com/JosuaIF23/chronodesk-laravel',
   },
   {
