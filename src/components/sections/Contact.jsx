@@ -6,7 +6,7 @@ import {
   GithubLogo,
   LinkedinLogo,
   InstagramLogoIcon,
-  PaperPlane,
+  PaperPlaneIcon,
 } from '@phosphor-icons/react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '../../utils/gsapInit';
@@ -41,17 +41,33 @@ const SOCIALS = [
     href: 'https://github.com/JosuaIF23',
     target: '_blank',
   },
-  { icon: LinkedinLogo, label: 'LinkedIn', href: 'https://www.linkedin.com/in/josua-silalahi/', target: '_blank' },
-  { icon: InstagramLogoIcon, label: 'Instagram', href: 'https://www.instagram.com/joshi.17999/', target: '_blank' },
+  {
+    icon: LinkedinLogo,
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/josua-silalahi/',
+    target: '_blank',
+  },
+  {
+    icon: InstagramLogoIcon,
+    label: 'Instagram',
+    href: 'https://www.instagram.com/joshi.17999/',
+    target: '_blank',
+  },
 ];
 
 const INITIAL_FORM = { name: '', email: '', subject: '', message: '' };
 
 export default function Contact() {
+  // ── Web3Forms config ── ganti dengan Access Key kamu ──
+  const WEB3FORMS_KEY = '52bcd4ce-f1e4-4b3e-a96a-f85a30f1939c';
+  // ────────────────────────────────────────────────────
+
   const containerRef = useRef(null);
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
 
   useGSAP(
     () => {
@@ -109,9 +125,39 @@ export default function Contact() {
       return;
     }
     setErrors({});
-    setSubmitted(true);
-    setForm(INITIAL_FORM);
-    setTimeout(() => setSubmitted(false), 5000);
+    setSendError('');
+    setSending(true);
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSending(false);
+        if (data.success) {
+          setSubmitted(true);
+          setForm(INITIAL_FORM);
+          setTimeout(() => setSubmitted(false), 5000);
+        } else {
+          setSendError(
+            'Failed to send message. Please try again or email me directly.',
+          );
+        }
+      })
+      .catch(() => {
+        setSending(false);
+        setSendError(
+          'Failed to send message. Please try again or email me directly.',
+        );
+      });
   };
 
   const handleChange = (e) => {
@@ -158,43 +204,47 @@ export default function Contact() {
             </h3>
 
             <div className="space-y-4 mb-10">
-              {CONTACT_INFO.map(({ icon: Icon, label, value, href, target }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target={target}
-                  rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-                  className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-md"
-                  style={{
-                    backgroundColor: 'var(--bg-secondary)',
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              {CONTACT_INFO.map(
+                ({ icon: Icon, label, value, href, target }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target={target}
+                    rel={
+                      target === '_blank' ? 'noopener noreferrer' : undefined
+                    }
+                    className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-md"
                     style={{
-                      backgroundColor: 'var(--accent)',
-                      color: 'white',
+                      backgroundColor: 'var(--bg-secondary)',
+                      border: '1px solid var(--border)',
                     }}
                   >
-                    <Icon size={20} weight="fill" />
-                  </div>
-                  <div>
-                    <p
-                      className="text-xs font-medium uppercase tracking-wide"
-                      style={{ color: 'var(--text-secondary)' }}
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{
+                        backgroundColor: 'var(--accent)',
+                        color: 'white',
+                      }}
                     >
-                      {label}
-                    </p>
-                    <p
-                      className="font-medium"
-                      style={{ color: 'var(--text-primary)' }}
-                    >
-                      {value}
-                    </p>
-                  </div>
-                </a>
-              ))}
+                      <Icon size={20} weight="fill" />
+                    </div>
+                    <div>
+                      <p
+                        className="text-xs font-medium uppercase tracking-wide"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        {label}
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {value}
+                      </p>
+                    </div>
+                  </a>
+                ),
+              )}
             </div>
 
             <h3
@@ -238,7 +288,7 @@ export default function Contact() {
                   className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
                   style={{ backgroundColor: 'var(--accent)', color: 'white' }}
                 >
-                  <PaperPlane size={28} weight="fill" />
+                  <PaperPlaneIcon size={28} weight="fill" />
                 </div>
                 <h3
                   className="font-semibold text-xl mb-2"
@@ -319,11 +369,24 @@ export default function Contact() {
                   )}
                 </div>
 
+                {sendError && (
+                  <p className="text-red-500 text-sm text-center">
+                    {sendError}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="btn-primary w-full justify-center"
+                  disabled={sending}
+                  className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                 >
-                  Send Message <PaperPlane size={18} weight="fill" />
+                  {sending ? (
+                    'Sending…'
+                  ) : (
+                    <>
+                      Send Message <PaperPlaneIcon size={18} weight="fill" />
+                    </>
+                  )}
                 </button>
               </form>
             )}
